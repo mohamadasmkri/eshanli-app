@@ -9,6 +9,9 @@ jobs:
 
     steps:
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Create Android project
         run: |
 
@@ -22,50 +25,41 @@ jobs:
           mkdir -p app/src/main/res/mipmap-xxxhdpi
           mkdir -p app/src/main/res/values
 
-          # إنشاء أيقونة سوداء
+          # استخدام الشعار الحقيقي
+          cp icon.png app/src/main/res/drawable/eshanli_logo.png
+
+          # إنشاء خلفية سوداء
           cat > app/src/main/res/drawable/icon_background.xml <<'EOF'
           <shape xmlns:android="http://schemas.android.com/apk/res/android"
               android:shape="rectangle">
+
               <solid android:color="#000000"/>
+
           </shape>
           EOF
 
-          # إنشاء شعار أبيض داخل الأيقونة
+          # الشعار الحقيقي في المقدمة
           cat > app/src/main/res/drawable/icon_foreground.xml <<'EOF'
           <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
               <item
-                  android:left="180dp"
-                  android:right="180dp"
-                  android:top="300dp"
-                  android:bottom="300dp">
+                  android:gravity="center"
+                  android:width="260dp"
+                  android:height="260dp">
 
-                  <shape android:shape="rectangle">
-                      <solid android:color="#FFFFFF"/>
-                      <corners android:radius="35dp"/>
-                  </shape>
-
-              </item>
-
-              <item
-                  android:left="300dp"
-                  android:right="300dp"
-                  android:top="180dp"
-                  android:bottom="420dp">
-
-                  <shape android:shape="rectangle">
-                      <solid android:color="#000000"/>
-                      <corners android:radius="25dp"/>
-                  </shape>
+                  <bitmap
+                      android:src="@drawable/eshanli_logo"
+                      android:gravity="fill"/>
 
               </item>
 
           </layer-list>
           EOF
 
-          # Adaptive Icon لأندرويد الحديث
+          # Adaptive Icon
           cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+          <adaptive-icon
+              xmlns:android="http://schemas.android.com/apk/res/android">
 
               <background
                   android:drawable="@drawable/icon_background"/>
@@ -76,34 +70,14 @@ jobs:
           </adaptive-icon>
           EOF
 
-          # أيقونة للأجهزة القديمة
-          cat > app/src/main/res/drawable/ic_launcher_legacy.xml <<'EOF'
-          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+          # للأجهزة القديمة
+          cp icon.png app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 
-              <item>
-                  <shape android:shape="rectangle">
-                      <solid android:color="#000000"/>
-                      <corners android:radius="90dp"/>
-                  </shape>
-              </item>
-
-              <item
-                  android:left="35dp"
-                  android:right="35dp"
-                  android:top="60dp"
-                  android:bottom="60dp">
-
-                  <shape android:shape="rectangle">
-                      <solid android:color="#FFFFFF"/>
-                      <corners android:radius="20dp"/>
-                  </shape>
-
-              </item>
-
-          </layer-list>
-          EOF
-
-          # إعداد Gradle
+          # Gradle settings
           cat > settings.gradle <<'EOF'
           pluginManagement {
               repositories {
@@ -114,7 +88,9 @@ jobs:
           }
 
           dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositoriesMode.set(
+                  RepositoriesMode.FAIL_ON_PROJECT_REPOS
+              )
 
               repositories {
                   google()
@@ -127,12 +103,14 @@ jobs:
           include(":app")
           EOF
 
+          # Gradle
           cat > build.gradle <<'EOF'
           plugins {
               id 'com.android.application' version '8.5.2' apply false
           }
           EOF
 
+          # App Gradle
           cat > app/build.gradle <<'EOF'
           plugins {
               id 'com.android.application'
@@ -152,9 +130,9 @@ jobs:
 
                   targetSdk 35
 
-                  versionCode 5
+                  versionCode 6
 
-                  versionName '1.4'
+                  versionName '1.5'
               }
           }
           EOF
@@ -186,11 +164,17 @@ jobs:
                   name="AppTheme"
                   parent="android:style/Theme.Material.Light.NoActionBar">
 
-                  <item name="android:statusBarColor">#000000</item>
+                  <item name="android:statusBarColor">
+                      #000000
+                  </item>
 
-                  <item name="android:navigationBarColor">#000000</item>
+                  <item name="android:navigationBarColor">
+                      #000000
+                  </item>
 
-                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:windowLightStatusBar">
+                      false
+                  </item>
 
               </style>
 
@@ -240,7 +224,7 @@ jobs:
           </manifest>
           EOF
 
-          # التطبيق
+          # MainActivity
           cat > app/src/main/java/com/eshanli/app/MainActivity.java <<'EOF'
           package com.eshanli.app;
 
@@ -326,6 +310,6 @@ jobs:
 
         with:
 
-          name: eshanli-apk-v5
+          name: eshanli-apk-v6
 
           path: app/build/outputs/apk/debug/app-debug.apk
