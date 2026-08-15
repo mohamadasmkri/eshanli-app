@@ -15,9 +15,17 @@ jobs:
         run: |
           mkdir -p app/src/main/java/com/eshanli/app
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/mipmap-hdpi
+          mkdir -p app/src/main/res/mipmap-mdpi
+          mkdir -p app/src/main/res/mipmap-xhdpi
+          mkdir -p app/src/main/res/mipmap-xxhdpi
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
 
-          cp icon.png app/src/main/res/drawable/app_icon.png
+          cp icon.png app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp icon.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 
           cat > settings.gradle <<'EOF'
           pluginManagement {
@@ -59,8 +67,8 @@ jobs:
                   applicationId 'com.eshanli.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 1
-                  versionName '1.0'
+                  versionCode 2
+                  versionName '1.1'
               }
           }
           EOF
@@ -75,8 +83,10 @@ jobs:
           <resources>
               <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
-                  <item name="android:windowActionModeOverlay">true</item>
-                  <item name="android:colorAccent">#2196F3</item>
+                  <item name="android:colorAccent">#000000</item>
+                  <item name="android:navigationBarColor">#000000</item>
+                  <item name="android:statusBarColor">#000000</item>
+                  <item name="android:windowLightStatusBar">false</item>
               </style>
           </resources>
           EOF
@@ -89,8 +99,11 @@ jobs:
               <application
                   android:theme="@style/AppTheme"
                   android:label="اشحنلي"
-                  android:icon="@drawable/app_icon"
-                  android:usesCleartextTraffic="true">
+                  android:icon="@mipmap/ic_launcher"
+                  android:roundIcon="@mipmap/ic_launcher"
+                  android:usesCleartextTraffic="true"
+                  android:allowBackup="false"
+                  android:supportsRtl="true">
 
                   <activity
                       android:name=".MainActivity"
@@ -132,8 +145,10 @@ jobs:
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
                   settings.setDatabaseEnabled(true);
+                  settings.setAllowFileAccess(true);
 
                   webView.setWebViewClient(new WebViewClient());
+
                   webView.loadUrl("https://eshanli.netlify.app/");
               }
 
@@ -165,5 +180,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: eshanli-apk
+          name: eshanli-apk-v2
           path: app/build/outputs/apk/debug/app-debug.apk
