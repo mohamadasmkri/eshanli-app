@@ -8,26 +8,102 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Create Android project
         run: |
+
           mkdir -p app/src/main/java/com/eshanli/app
-          mkdir -p app/src/main/res/values
           mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/mipmap-anydpi-v26
           mkdir -p app/src/main/res/mipmap-mdpi
           mkdir -p app/src/main/res/mipmap-hdpi
           mkdir -p app/src/main/res/mipmap-xhdpi
           mkdir -p app/src/main/res/mipmap-xxhdpi
           mkdir -p app/src/main/res/mipmap-xxxhdpi
-          mkdir -p app/src/main/res/mipmap-anydpi-v26
+          mkdir -p app/src/main/res/values
 
-          cp icon.png app/src/main/res/mipmap-mdpi/ic_launcher.png
-          cp icon.png app/src/main/res/mipmap-hdpi/ic_launcher.png
-          cp icon.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          cp icon.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          cp icon.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          # إنشاء أيقونة سوداء
+          cat > app/src/main/res/drawable/icon_background.xml <<'EOF'
+          <shape xmlns:android="http://schemas.android.com/apk/res/android"
+              android:shape="rectangle">
+              <solid android:color="#000000"/>
+          </shape>
+          EOF
 
-          cp icon.png app/src/main/res/drawable/ic_launcher_foreground.png
+          # إنشاء شعار أبيض داخل الأيقونة
+          cat > app/src/main/res/drawable/icon_foreground.xml <<'EOF'
+          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
+              <item
+                  android:left="180dp"
+                  android:right="180dp"
+                  android:top="300dp"
+                  android:bottom="300dp">
+
+                  <shape android:shape="rectangle">
+                      <solid android:color="#FFFFFF"/>
+                      <corners android:radius="35dp"/>
+                  </shape>
+
+              </item>
+
+              <item
+                  android:left="300dp"
+                  android:right="300dp"
+                  android:top="180dp"
+                  android:bottom="420dp">
+
+                  <shape android:shape="rectangle">
+                      <solid android:color="#000000"/>
+                      <corners android:radius="25dp"/>
+                  </shape>
+
+              </item>
+
+          </layer-list>
+          EOF
+
+          # Adaptive Icon لأندرويد الحديث
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+
+              <background
+                  android:drawable="@drawable/icon_background"/>
+
+              <foreground
+                  android:drawable="@drawable/icon_foreground"/>
+
+          </adaptive-icon>
+          EOF
+
+          # أيقونة للأجهزة القديمة
+          cat > app/src/main/res/drawable/ic_launcher_legacy.xml <<'EOF'
+          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+              <item>
+                  <shape android:shape="rectangle">
+                      <solid android:color="#000000"/>
+                      <corners android:radius="90dp"/>
+                  </shape>
+              </item>
+
+              <item
+                  android:left="35dp"
+                  android:right="35dp"
+                  android:top="60dp"
+                  android:bottom="60dp">
+
+                  <shape android:shape="rectangle">
+                      <solid android:color="#FFFFFF"/>
+                      <corners android:radius="20dp"/>
+                  </shape>
+
+              </item>
+
+          </layer-list>
+          EOF
+
+          # إعداد Gradle
           cat > settings.gradle <<'EOF'
           pluginManagement {
               repositories {
@@ -39,6 +115,7 @@ jobs:
 
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
               repositories {
                   google()
                   mavenCentral()
@@ -46,6 +123,7 @@ jobs:
           }
 
           rootProject.name = "Eshanli"
+
           include(":app")
           EOF
 
@@ -61,68 +139,98 @@ jobs:
           }
 
           android {
+
               namespace 'com.eshanli.app'
+
               compileSdk 35
 
               defaultConfig {
+
                   applicationId 'com.eshanli.app'
+
                   minSdk 23
+
                   targetSdk 35
-                  versionCode 4
-                  versionName '1.3'
+
+                  versionCode 5
+
+                  versionName '1.4'
               }
           }
           EOF
 
-          cat > app/src/main/res/values/colors.xml <<'EOF'
-          <resources>
-              <color name="icon_background">#000000</color>
-          </resources>
-          EOF
-
+          # اسم التطبيق
           cat > app/src/main/res/values/strings.xml <<'EOF'
           <resources>
+
               <string name="app_name">اشحنلي</string>
+
           </resources>
           EOF
 
+          # الألوان
+          cat > app/src/main/res/values/colors.xml <<'EOF'
+          <resources>
+
+              <color name="black">#000000</color>
+              <color name="white">#FFFFFF</color>
+
+          </resources>
+          EOF
+
+          # الثيم
           cat > app/src/main/res/values/styles.xml <<'EOF'
           <resources>
-              <style name="AppTheme"
+
+              <style
+                  name="AppTheme"
                   parent="android:style/Theme.Material.Light.NoActionBar">
+
                   <item name="android:statusBarColor">#000000</item>
+
                   <item name="android:navigationBarColor">#000000</item>
+
                   <item name="android:windowLightStatusBar">false</item>
+
               </style>
+
           </resources>
           EOF
 
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/icon_background"/>
-              <foreground android:drawable="@drawable/ic_launcher_foreground"/>
-          </adaptive-icon>
-          EOF
-
+          # Manifest
           cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+          <manifest
+              xmlns:android="http://schemas.android.com/apk/res/android">
 
-              <uses-permission android:name="android.permission.INTERNET"/>
+              <uses-permission
+                  android:name="android.permission.INTERNET"/>
 
               <application
+
                   android:theme="@style/AppTheme"
+
                   android:label="اشحنلي"
+
                   android:icon="@mipmap/ic_launcher"
+
                   android:roundIcon="@mipmap/ic_launcher"
+
                   android:usesCleartextTraffic="true">
 
                   <activity
+
                       android:name=".MainActivity"
+
                       android:exported="true">
 
                       <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
+
+                          <action
+                              android:name="android.intent.action.MAIN"/>
+
+                          <category
+                              android:name="android.intent.category.LAUNCHER"/>
+
                       </intent-filter>
 
                   </activity>
@@ -132,6 +240,7 @@ jobs:
           </manifest>
           EOF
 
+          # التطبيق
           cat > app/src/main/java/com/eshanli/app/MainActivity.java <<'EOF'
           package com.eshanli.app;
 
@@ -147,50 +256,76 @@ jobs:
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
+
                   super.onCreate(savedInstanceState);
 
                   webView = new WebView(this);
+
                   setContentView(webView);
 
-                  WebSettings settings = webView.getSettings();
+                  WebSettings settings =
+                      webView.getSettings();
+
                   settings.setJavaScriptEnabled(true);
+
                   settings.setDomStorageEnabled(true);
+
                   settings.setDatabaseEnabled(true);
 
-                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebViewClient(
+                      new WebViewClient()
+                  );
 
-                  webView.loadUrl("https://eshanli.netlify.app/");
+                  webView.loadUrl(
+                      "https://eshanli.netlify.app/"
+                  );
               }
 
               @Override
               public void onBackPressed() {
+
                   if (webView.canGoBack()) {
+
                       webView.goBack();
+
                   } else {
+
                       super.onBackPressed();
+
                   }
               }
           }
           EOF
 
+
       - name: Install Android SDK
         uses: android-actions/setup-android@v3
 
+
       - name: Install SDK
         run: |
-          sdkmanager "platform-tools" \
+
+          sdkmanager \
+            "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.0"
+
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+
       - name: Build APK
         run: |
+
           gradle :app:assembleDebug
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
+
         with:
-          name: eshanli-apk-final
+
+          name: eshanli-apk-v5
+
           path: app/build/outputs/apk/debug/app-debug.apk
